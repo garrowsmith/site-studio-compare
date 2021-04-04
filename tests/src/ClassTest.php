@@ -62,8 +62,8 @@ final class ClassTest extends TestCase {
 
     public function testCompareSingleComplexToCSV(): void {
         $path = $this->path . '/../packages/complex/';
-        $source = $path . 'source-2.6.0.package.yml';
-        $target = $path . 'target-brand-1.0.4.yml';
+        $source = $path . '2.6.0.package.yml';
+        $target = $path . 'brand-1.0.4.yml';
         $this->report = $this->path . '/../results/class/complex.single.generated.csv';
         // remove previous test runs
         if (file_exists($this->report)) unlink($this->report);
@@ -80,10 +80,10 @@ final class ClassTest extends TestCase {
 
     public function testCompareMultipleComplexToCSV(): void {
         $path = $this->path . '/../packages/complex/';
-        $source = $path . 'source-2.6.0.package.yml';
+        $source = $path . '2.6.0.package.yml';
         $target = array(
-            $path . 'target-brand-1.0.4.yml',
-            $path . 'target-brand-styles-1.0.7.yml'
+            $path . 'brand-1.0.4.yml',
+            $path . 'brand-styles-1.0.7.yml'
         );
         $this->report = $this->path . '/../results/class/complex.multiple.generated.csv';
 

@@ -3,3 +3,4 @@
 vendor
 
 tests/results/*/*.csv
+tests/packages/*/*.yml
