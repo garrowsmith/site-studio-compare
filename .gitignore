@@ -1,2 +1,5 @@
+.DS_Store
+
 vendor
-tests/results/*/generated.csv
+
+tests/results/*/*.csv
