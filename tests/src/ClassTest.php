@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 namespace ClassTest;
-use SiteStudio\Package\CompareYaml;
+use SiteStudio\Package\ComparePackage;
 use PHPUnit\Framework\TestCase;
 
 /*
@@ -23,7 +23,7 @@ final class ClassTest extends TestCase {
     }
   
     public function testCompareBasicClass(): void {
-        $compare = new CompareYaml($this->source, $this->target);
+        $compare = new ComparePackage($this->source, $this->target);
         $diff_arr = $compare->diffToArray();
         $key = basename($this->target);
 
@@ -38,7 +38,7 @@ final class ClassTest extends TestCase {
     }
 
     public function testCompareBasicToJSON(): void {
-        $compare = new CompareYaml($this->source, $this->target);
+        $compare = new ComparePackage($this->source, $this->target);
         $json = $compare->diffToJSON();
         $this->assertNotNull(
             $json,
@@ -50,7 +50,7 @@ final class ClassTest extends TestCase {
         // remove previous test runs
         if (file_exists($this->report)) unlink($this->report);
 
-        $compare = new CompareYaml($this->source, $this->target);
+        $compare = new ComparePackage($this->source, $this->target);
         $compare->diffToCSV($this->report);
 
         $report_exists = file_exists($this->report);
@@ -68,7 +68,7 @@ final class ClassTest extends TestCase {
         // remove previous test runs
         if (file_exists($this->report)) unlink($this->report);
 
-        $compare = new CompareYaml($source, $target);
+        $compare = new ComparePackage($source, $target);
         $compare->diffToCSV($this->report);
 
         $report_exists = file_exists($this->report);
@@ -89,7 +89,7 @@ final class ClassTest extends TestCase {
 
         if (file_exists($this->report)) unlink($this->report);
 
-        $compare = new CompareYaml($source, $target);
+        $compare = new ComparePackage($source, $target);
         $compare->diffToCSV($this->report);
 
         $report_exists = file_exists($this->report);

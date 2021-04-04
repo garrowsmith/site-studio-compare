@@ -4,7 +4,7 @@ namespace SiteStudio\Package;
 use Symfony\Component\Yaml\Yaml;
 use SiteStudio\Package\ArrayDiff;
 
-class CompareYaml {
+class ComparePackage {
 
     private $source;
     private $target;
@@ -46,18 +46,18 @@ class CompareYaml {
     private function process($source, $targets) {
         if (!is_array($targets)) {
             $filename = basename($targets);
-            $this->diff[$filename] = CompareYaml::comparePackages($source, $targets);    
+            $this->diff[$filename] = ComparePackage::compare($source, $targets);    
         } 
         if (is_array($targets)) {
             foreach($targets as $target) {
                 $filename = basename($target);
-                $this->diff[$filename] = CompareYaml::comparePackages($source, $target);
+                $this->diff[$filename] = ComparePackage::compare($source, $target);
             }
         }
     }
 
     /**
-     * Prefix array with an index column and write array to csv file (append)
+     * Compare source and target yaml packages
      *
      * @param string $source source yaml file to compare
      * @param string $target target yaml file to compare
@@ -66,47 +66,28 @@ class CompareYaml {
      * 
      * @return array[] array with keys 'overrides', 'insertions' and 'deletions'
      */
-    private function comparePackages($source, $target, $keys = null) {
+    private function compare($source, $target, $keys = null) {
         $keys = $keys ? $keys : $this->compareKeys;
         
-        $sourceYAML = CompareYaml::collateSSYaml($source);
-        $comparisonYAML = CompareYaml::collateSSYaml($target);
-        $diff = ArrayDiff::arrayDifference($sourceYAML, $comparisonYAML, $keys);
+        $sourceYAML = ComparePackage::reduce($source);
+        $targetYAML = ComparePackage::reduce($target);
+        $diff = ArrayDiff::arrayDifference($sourceYAML, $targetYAML, $keys);
         // an override is everything that hasn't been 'insterted'
-        $diff['overrides'] = array_diff_key($comparisonYAML, $diff['insertions']);
-        CompareYaml::classifyDiff('overrides', 'overrides', $diff, $target);
+        $diff['overrides'] = array_diff_key($targetYAML, $diff['insertions']);
+        ComparePackage::classify('overrides', 'overrides', $diff, $target);
         // "customisations" are "insertions"
-        CompareYaml::classifyDiff('custom', 'insertions', $diff, $target);
+        ComparePackage::classify('custom', 'insertions', $diff, $target);
 
         return $diff;
     }
 
     /**
-     * Classifies aeach row and attributes source package
-     *
-     * @param string $tag classify the type of diff
-     * @param string $key keyed on the package path
-     * @param array $data the diff array
-     * @param string $target attribute the change to a package 
-     * 
-     * @return array[] array with keys 'overrides', 'insertions' and 'deletions'
-     */    
-    private function classifyDiff($tag, $key, &$data, $target) {
-        $target_filename = basename($target);
-        foreach ($data[$key] as &$row) {
-            $row = array('idx' => $tag) + $row;
-            $row = $row + array('source' => $target_filename);
-            $this->diffCount++;
-        }
-    }
-
-    /**
-     * Compare two arrays and return a list of items only in array1 (deletions) and only in array2 (insertions)
+     * Reduce package yaml to minimal key/values to processing
      * 
      * @param string $path The file path to a Site Studio yaml package
      * @param string $ignoredEntityTypes Site Studio entities to be ignored 
      */
-    private function collateSSYaml($path, $ignoredEntityTypes = null) {
+    private function reduce($path, $ignoredEntityTypes = null) {
         $ignoredEntityTypes = $ignoredEntityTypes ? $ignoredEntityTypes : $this->ignoredEntityTypes;
         $package = Yaml::parse(file_get_contents($path));    
         $config_collection = array();
@@ -119,10 +100,27 @@ class CompareYaml {
             $item['label'] = $config_item['export']['label'];
             $config_collection[$item['uuid']] = $item;
         }
-
         unset($package);
-
         return $config_collection;
+    }
+
+    /**
+     * Classifies each row and attributes change to a target package
+     *
+     * @param string $tag classify the type of diff
+     * @param string $key keyed on the package path
+     * @param array $data the diff array
+     * @param string $target attribute the change to a package 
+     * 
+     * @return array[] array with keys 'overrides', 'insertions' and 'deletions'
+     */
+    private function classify($tag, $key, &$data, $target) {
+        $target_filename = basename($target);
+        foreach ($data[$key] as &$row) {
+            $row = array('idx' => $tag) + $row;
+            $row = $row + array('source' => $target_filename);
+            $this->diffCount++;
+        }
     }
 
     /**
@@ -133,13 +131,13 @@ class CompareYaml {
     public function diffToCSV($destination = null) {
         $destination = $destination ? $destination : $this->report;
         foreach ($this->diff as &$target) {
-            CompareYaml::fputDiffCSV($destination, $target['overrides']);
-            CompareYaml::fputDiffCSV($destination, $target['insertions']);
+            ComparePackage::fputDiffCSV($destination, $target['overrides']);
+            ComparePackage::fputDiffCSV($destination, $target['insertions']);
         }
     }
 
     /**
-     * Returns diff as PHP Array
+     * Returns the package diff as PHP Array
      * 
      * @return array[] array with keys for each source, 'overrides', 'insertions' and 'deletions'
     */
@@ -148,7 +146,7 @@ class CompareYaml {
     }
 
     /**
-     * Returns diff as JSON
+     * Returns the package diff as JSON
      *
      * @return JSON  
     */
@@ -157,12 +155,11 @@ class CompareYaml {
     }
 
    /**
-     * Prefix array with an index column and write array to csv file (append)
+     * 
      *
-     * @param string $index type of diff/change
-     * @param string $source_path the source package
-     * @param string $file_destination destination file file
-     * @param array $data 
+     * @param string $file_destination path to write CSV
+     * @param array $data source array formatted for CSV
+     * @param string $fparams passed as fopen parameters
     */
     private function fputDiffCSV($file_destination, $data, $fparams = "a") {
         $handle = fopen($file_destination, $fparams);

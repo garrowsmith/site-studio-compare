@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 namespace BasicTest;
-use SiteStudio\Package\CompareYaml;
+use SiteStudio\Package\ComparePackage;
 use PHPUnit\Framework\TestCase;
 
 final class BasicTest extends TestCase {
@@ -35,11 +35,11 @@ final class BasicTest extends TestCase {
             'image_style',
             'cohesion_component_category',
         );
-        $diff = CompareYaml::comparePackages($source, $target, $keys);
+        $diff = ComparePackage::compare($source, $target, $keys);
 
         if (file_exists($this->report)) unlink($this->report);
-        CompareYaml::fputDiff('overrides', $target, $this->report, $diff[$target]['overrides']);
-        CompareYaml::fputDiff('custom', $target, $this->report, $diff[$target]['insertions']);
+        ComparePackage::fputDiff('overrides', $target, $this->report, $diff[$target]['overrides']);
+        ComparePackage::fputDiff('custom', $target, $this->report, $diff[$target]['insertions']);
 
         $this->assertNotEmpty(
             $diff[$target]['overrides'],
