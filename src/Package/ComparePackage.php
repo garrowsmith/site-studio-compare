@@ -40,7 +40,7 @@ class ComparePackage {
     }
 
     /**
-     * @param string $source path to source packages
+     * @param string $source path to source yaml packages
      * @param mixed $targets single or array of paths to package(s)
      */
     private function process($source, $targets) {
@@ -59,9 +59,8 @@ class ComparePackage {
     /**
      * Compare source and target yaml packages
      *
-     * @param string $source source yaml file to compare
-     * @param string $target target yaml file to compare
-     * @param string $keys override the keys used for diff comparison
+     * @param string $source path to source yaml package to compare
+     * @param string $target path to target yaml package to compare
      * @param string $keys an array of keys to be compared
      * 
      * @return array[] array with keys 'overrides', 'insertions' and 'deletions'
@@ -71,6 +70,7 @@ class ComparePackage {
         
         $sourceYAML = ComparePackage::reduce($source);
         $targetYAML = ComparePackage::reduce($target);
+
         $diff = ArrayDiff::arrayDifference($sourceYAML, $targetYAML, $keys);
         // an override is everything that hasn't been 'insterted'
         $diff['overrides'] = array_diff_key($targetYAML, $diff['insertions']);
@@ -126,7 +126,7 @@ class ComparePackage {
     /**
      * Prefix array with an index column and write array to csv file (append)
      *
-     * @param string $destination csv
+     * @param string $destination path to output CSV file
     */
     public function diffToCSV($destination = null) {
         $destination = $destination ? $destination : $this->report;
