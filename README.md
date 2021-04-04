@@ -3,6 +3,10 @@
 ## Example Usage
 
 ```
+<?php
+
+use SiteStudio\Package\ComparePackage;
+
 $source = 'mds.2.6.0.package.yml';
 $targets = array(
     'brand.1.0.14.package.yml',
@@ -16,4 +20,8 @@ $json = $compare->diffToArray();
 $compare->diffToCSV('../path/to/report.csv');
 ```
 
-## Example Usage
+## PHPUnit Tests
+
+```
+./vendor/bin/phpunit tests
+```

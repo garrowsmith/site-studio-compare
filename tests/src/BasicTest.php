@@ -7,72 +7,71 @@ use PHPUnit\Framework\TestCase;
 final class BasicTest extends TestCase {
 
     private $path;
-    private $report;
+    private $source;
     private $target;
+    private $generated_report;
+    private $target_report;
     
     protected function setUp(): void {
         parent::setUp();
         $this->path = dirname(__FILE__);
-        $this->report = $this->path . '/../results/basic/generated.csv';
-        $this->target = $this->path . '/../results/basic/target.csv';
+        $this->source = $this->path . '/../packages/basic/source.yml';
+        $this->target = $this->path . '/../packages/basic/target.yml';
+        $this->generated_report = $this->path . '/../results/basic/generated.csv';
+        $this->target_report = $this->path . '/../results/basic/target.csv';
     }
 
     public function testTargetExists(): void {
         $this->assertFileExists( 
-            $this->target, 
-            "Basic report $this->report target exists"
-        ); 
-    }    
-
-    public function testComparePackages(): void {
-        $source = $this->path . '/../packages/basic/source.yml';
-        $target = $this->path . '/../packages/basic/target.yml';
-        $keys = array(
-            'cohesion_sync_package',
-            'file',
-            'cohesion_style_guide_manager',
-            'cohesion_style_guide',
-            'image_style',
-            'cohesion_component_category',
+            $this->target_report, 
+            "Basic report $this->target_report target exists"
         );
-        $diff = ComparePackage::compare($source, $target, $keys);
+    }
 
-        if (file_exists($this->report)) unlink($this->report);
-        ComparePackage::fputDiff('overrides', $target, $this->report, $diff[$target]['overrides']);
-        ComparePackage::fputDiff('custom', $target, $this->report, $diff[$target]['insertions']);
-
+    public function testCompareArray(): void {
+        $compare = new ComparePackage($this->source, $this->target);
+        $diff = $compare->diffToArray();        
+        $package = basename($this->target);
+        
         $this->assertNotEmpty(
-            $diff[$target]['overrides'],
+            $diff[$package]['overrides'],
             "diff array is not empty."
         );
         $this->assertNotEmpty(
-            $diff[$target]['insertions'],
+            $diff[$package]['insertions'],
             "diff array is not empty."
-        );        
+        );
     }
 
     public function testComparePackagesReportExists(): void { 
+        if (file_exists($this->generated_report)) unlink($this->generated_report);
+
+        $compare = new ComparePackage($this->source, $this->target);
+        $compare->diffToCSV($this->generated_report);
+
         $this->assertFileExists( 
-            $this->report, 
-            "Basic report $this->report exists."
+            $this->generated_report, 
+            "Basic report $this->generated_report exists."
         );
     } 
 
     public function testComparePackagesReportIdentical(): void { 
         $identical = false;
-        if (filesize($this->report) == filesize($this->target)
-            && md5_file($this->report) == md5_file($this->target)) {
+        if (filesize($this->generated_report) == filesize($this->target_report)
+            && md5_file($this->generated_report) == md5_file($this->target_report)) {
             $identical = true;
         }
         $this->assertTrue(
             $identical,
-            "Reports are identical."
+            "Basic target and generated reports are identical."
         );
     }
 
     protected function tearDown(): void {
         $this->path = null;
-        $this->report = null;
+        $this->generated_report = null;
+        $this->target_report = null;
+        $this->source = null;
         $this->target = null;
         parent::tearDown();
     }

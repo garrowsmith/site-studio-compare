@@ -61,7 +61,7 @@ final class ClassTest extends TestCase {
     }
 
     public function testCompareSingleComplexToCSV(): void {
-        $path = $this->path . '/../packages/complex/';
+        $path = $this->path . '/../packages/class/';
         $source = $path . '2.6.0.package.yml';
         $target = $path . 'brand-1.0.4.yml';
         $this->report = $this->path . '/../results/class/complex.single.generated.csv';
@@ -79,7 +79,7 @@ final class ClassTest extends TestCase {
     }
 
     public function testCompareMultipleComplexToCSV(): void {
-        $path = $this->path . '/../packages/complex/';
+        $path = $this->path . '/../packages/class/';
         $source = $path . '2.6.0.package.yml';
         $target = array(
             $path . 'brand-1.0.4.yml',
