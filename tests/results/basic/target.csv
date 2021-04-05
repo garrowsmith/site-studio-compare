@@ -1,4 +1,5 @@
-overrides,cohesion_component,256d08876-0ea8-4494-ab19-24c6be275fe5,cpt_promotional_banner,"Promotional Banner 2",target.yml
-overrides,cohesion_component,356d08876-0ea8-4494-ab19-24c6be275fe5,cpt_promotional_banner,"Promotional Banner 3",target.yml
-overrides,cohesion_component,456d08876-0ea8-4494-ab19-24c6be275fe5,cpt_promotional_banner,"Promotional Banner 4",target.yml
-custom,cohesion_component,1231231231-123123-123-123-12123,cpt_promotional_banner,"Promotional Banner 4",target.yml
+idx,type,uuid,id,label,package,path
+overrides,cohesion_component,256d08876-0ea8-4494-ab19-24c6be275fe5,cpt_promotional_banner,"Promotional Banner 2",target.yml,/Users/graham.arrowsmith/projects/site-studio-compare/tests/src/../packages/basic/target.yml
+overrides,cohesion_component,356d08876-0ea8-4494-ab19-24c6be275fe5,cpt_promotional_banner,"Promotional Banner 3",target.yml,/Users/graham.arrowsmith/projects/site-studio-compare/tests/src/../packages/basic/target.yml
+overrides,cohesion_component,456d08876-0ea8-4494-ab19-24c6be275fe5,cpt_promotional_banner,"Promotional Banner 4",target.yml,/Users/graham.arrowsmith/projects/site-studio-compare/tests/src/../packages/basic/target.yml
+custom,cohesion_component,1231231231-123123-123-123-12123,cpt_promotional_banner,"Promotional Banner 4",target.yml,/Users/graham.arrowsmith/projects/site-studio-compare/tests/src/../packages/basic/target.yml

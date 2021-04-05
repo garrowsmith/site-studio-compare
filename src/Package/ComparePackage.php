@@ -9,6 +9,7 @@ class ComparePackage {
     private $source;
     private $target;
     private $report;
+    private $csvHeader = array();
 
     public $sourceArray;
     public $targetArray;
@@ -24,6 +25,15 @@ class ComparePackage {
         $this->source = $source;
         $this->target = $target;
         $this->options = $options;
+        $this->csvHeader[] = array(
+            'idx',
+            'type',
+            'uuid',
+            'id',
+            'label',
+            'package',
+            'path',
+        );
         $this->ignoredEntityTypes = array(
             'cohesion_sync_package',
             'file',
@@ -94,7 +104,6 @@ class ComparePackage {
         $ignoredEntityTypes = $ignoredEntityTypes ? $ignoredEntityTypes : $this->ignoredEntityTypes;
         $package = Yaml::parse(file_get_contents($path));    
         $config_collection = array();
-
         foreach ($package as $source => $config_item) {
             if (in_array($config_item['type'], $ignoredEntityTypes)) continue;
             $item['type'] = $config_item['type'];
@@ -128,19 +137,6 @@ class ComparePackage {
     }
 
     /**
-     * Prefix array with an index column and write array to csv file (append)
-     *
-     * @param string $destination path to output CSV file
-    */
-    public function diffToCSV($destination = null) {
-        $destination = $destination ? $destination : $this->report;
-        foreach ($this->diff as &$target) {
-            ComparePackage::fputDiffCSV($destination, $target['overrides']);
-            ComparePackage::fputDiffCSV($destination, $target['insertions']);
-        }
-    }
-
-    /**
      * Returns the package diff as PHP Array
      * 
      * @return array[] array with keys for each source, 'overrides', 'insertions' and 'deletions'
@@ -156,6 +152,22 @@ class ComparePackage {
     */
     public function diffToJSON() {
         return json_encode($this->diff);
+    }
+
+    /**
+     * Prefix array with an index column and write array to csv file (append)
+     *
+     * @param string $destination path to output CSV file
+     * @param array $header optional header array
+    */
+    public function diffToCSV($destination = null, $header = null) {
+        $header_row = !is_null($header) ? $header : $this->csvHeader;
+        $destination = $destination ? $destination : $this->report;
+        ComparePackage::fputDiffCSV($destination, $header_row);
+        foreach ($this->diff as &$target) {
+            ComparePackage::fputDiffCSV($destination, $target['overrides']);
+            ComparePackage::fputDiffCSV($destination, $target['insertions']);
+        }
     }
 
    /**
