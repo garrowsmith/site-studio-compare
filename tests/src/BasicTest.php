@@ -30,15 +30,13 @@ final class BasicTest extends TestCase {
 
     public function testCompareArray(): void {
         $compare = new ComparePackage($this->source, $this->target);
-        $diff = $compare->diffToArray();        
-        $package = basename($this->target);
-        
+        $diff = $compare->diffToArray();                
         $this->assertNotEmpty(
-            $diff[$package]['overrides'],
+            $diff[$this->target]['overrides'],
             "diff array is not empty."
         );
         $this->assertNotEmpty(
-            $diff[$package]['insertions'],
+            $diff[$this->target]['insertions'],
             "diff array is not empty."
         );
     }
