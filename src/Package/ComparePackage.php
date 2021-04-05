@@ -10,6 +10,9 @@ class ComparePackage {
     private $target;
     private $report;
 
+    public $sourceArray;
+    public $targetArray;
+
     private $diff = array();
     private $diffCount = 0;
 
@@ -45,12 +48,12 @@ class ComparePackage {
      */
     private function process($source, $targets) {
         if (!is_array($targets)) {
-            $filename = basename($targets);
+            $filename = $targets;
             $this->diff[$filename] = ComparePackage::compare($source, $targets);    
         } 
         if (is_array($targets)) {
             foreach($targets as $target) {
-                $filename = basename($target);
+                $filename = $target;
                 $this->diff[$filename] = ComparePackage::compare($source, $target);
             }
         }
@@ -82,7 +85,7 @@ class ComparePackage {
     }
 
     /**
-     * Reduce package yaml to minimal key/values to processing
+     * Reduce package yaml to minimal key/values used for comparison
      * 
      * @param string $path The file path to a Site Studio yaml package
      * @param string $ignoredEntityTypes Site Studio entities to be ignored 
@@ -115,10 +118,11 @@ class ComparePackage {
      * @return array[] array with keys 'overrides', 'insertions' and 'deletions'
      */
     private function classify($tag, $key, &$data, $target) {
-        $target_filename = basename($target);
+        $package_filename = basename($target);
         foreach ($data[$key] as &$row) {
             $row = array('idx' => $tag) + $row;
-            $row = $row + array('source' => $target_filename);
+            $row = $row + array('package' => $package_filename);
+            $row = $row + array('path' => $target);
             $this->diffCount++;
         }
     }
@@ -155,18 +159,76 @@ class ComparePackage {
     }
 
    /**
-     * 
+     * Write array to CSV
      *
      * @param string $file_destination path to write CSV
      * @param array $data source array formatted for CSV
      * @param string $fparams passed as fopen parameters
     */
-    private function fputDiffCSV($file_destination, $data, $fparams = "a") {
+    public function fputDiffCSV($file_destination, $data, $fparams = "a") {
         $handle = fopen($file_destination, $fparams);
         foreach ($data as $row) {
             fputcsv($handle, $row);
         }
         fclose($handle);
-    }    
+    }
+
+   /**
+     * Set Source loads source package to memory
+     *
+     * @param string $path
+    */
+    public function setSource($path) {
+        if (file_exists($path)) {
+            $this->sourceArray = Yaml::parse(file_get_contents($path));
+        }
+    }
+
+   /**
+     * Set Target loads target package to memory
+     *
+     * @param string $path
+    */
+    public function setTarget($path) {
+        if (file_exists($path)) {
+            $this->targetArray = Yaml::parse(file_get_contents($path));
+        }
+    }
+
+   /**
+     * Inspect finds an entity via uuid using in memory array
+     *
+     * @param string $uuid uuid of the entity
+     * @param array $array array of package
+     * 
+     * @return array[]|null 
+    */
+    public function inspect($uuid, &$array) {
+        $ignoredEntityTypes = $this->ignoredEntityTypes;
+        foreach ($array as $source => $item) {
+            if (in_array($item['type'], $ignoredEntityTypes)) continue;
+            if ($item['export']['uuid'] == $uuid) {
+                return $item;
+            }
+        }
+        return null;
+    } 
+
+   /**
+     * Search loads a file and attempts to find an entity via uuid
+     *
+     * @param string $uuid uuid of the entity
+     * @param string $path path to package yaml
+     * 
+     * @return array[]
+    */
+    public function search($uuid, $path) {
+        if (file_exists($path)) {
+            $package = Yaml::parse(file_get_contents($path));
+        } else {
+            return null;
+        }
+        return $this->inspect($uuid, $package);
+    }  
 
 }

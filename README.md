@@ -17,7 +17,6 @@ Require the dependency via Composer:
 composer require garrowsmith/site-studio-compare
 ```
 
-
 ## Example usage: multiple packages
 
 ```
@@ -57,4 +56,26 @@ $compare->diffToCSV('../path/to/report.csv');
 
 ```
 ./vendor/bin/phpunit tests
+```
+
+### YAML Structure
+Reference Site Studio Package structure.
+
+```
+-
+    type: cohesion_component
+    export:
+        langcode: en
+        status: true
+        dependencies: {  }
+        id: cpt_machine_name
+        label: 'Title of component'
+        json_values: '{}'
+        json_mapper: '{}'
+        last_entity_update: entityupdate_0099
+        locked: false
+        modified: true
+        selectable: true
+    ...    
+*/
 ```
