@@ -1,8 +1,13 @@
 # site-studio-compare
 
-## Installation
-Add the following to the repositories section of your project's composer.json:
+This project provides tools to:
+* Identify a high level diff - deletions and overrides between a source and target package.
+* Output a high level diff to PHP array, JSON or CSV.
+* Compare package JSON fields stored as strings, by wrapping JSONdiff https://github.com/swaggest/json-diff#library-usage
 
+## Installation
+
+Add the following to the repositories section of your project's composer.json:
 
 ```
 "site-studio-tools": {
@@ -17,7 +22,23 @@ Require the dependency via Composer:
 composer require garrowsmith/site-studio-compare
 ```
 
-## Example usage: multiple packages
+## Package Setup
+
+This project relies on real packages and are excluded:
+
+```
+    tests/packages/complex/mds.2.6.0.package.yml
+    tests/packages/complex/brand-1.0.4.yml
+    tests/packages/complex/brand-styles-1.0.7.yml
+```
+
+## Example Usage
+
+### Example usage: JSON diff
+
+See `./examples/diff.php` folder for a usage example where field value of `json_values` is compared.
+
+### Example usage: multiple packages
 
 ```
 <?php
@@ -38,7 +59,7 @@ $json = $compare->diffToJSON();
 
 ```
 
-## Example usage: single package
+### Example usage: single package
 
 ```
 <?php
@@ -50,16 +71,32 @@ $target = 'brand.1.0.14.package.yml';
 
 $compare = new ComparePackage($source, $target);
 $compare->diffToCSV('../path/to/report.csv');
-```
-
-## PHPUnit Tests
 
 ```
-./vendor/bin/phpunit tests
+
+## Structure of the diff Array 
+
+```
+$diff["/path/to/target.package.yml"] => {
+    ["insertions"]=> {...}
+    ["deletions"]=> {...}
+    ["overrides"] => {
+        ["21548607-8efc-490c-aa9b-2d3694399aad] => {
+            ["idx"]=> "overrides"
+            ["type"]=> "cohesion_menu_templates"
+            ["uuid"]=> "21548607-8efc-490c-aa9b-2d3694399aad"
+            ["id"]=> "menu_tpl_main_navigation"
+            ["label"]=> "Burger menu template"
+            ["package"]=> "single-target-styles.yml"
+            ["path"]=> "/some/path/packages/single-target-styles.yml"
+    }
+}
+
 ```
 
-### YAML Structure
-Reference Site Studio Package structure.
+### Reference YAML Structure
+
+Reference Site Studio Package structure (6.3.x, 6.4.x):
 
 ```
 -
@@ -78,4 +115,10 @@ Reference Site Studio Package structure.
         selectable: true
     ...    
 */
+```
+
+## PHPUnit Tests
+
+```
+./vendor/bin/phpunit tests
 ```

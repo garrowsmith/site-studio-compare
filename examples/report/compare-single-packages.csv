@@ -1,0 +1,2 @@
+idx,type,uuid,id,label,package,path
+overrides,cohesion_menu_templates,21548607-8efc-490c-aa9b-2d3694399aad,menu_tpl_main_navigation,"Burger menu template",single-target-styles.yml,/examples/packages/single-target-styles.yml
