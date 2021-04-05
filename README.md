@@ -1,7 +1,8 @@
 # site-studio-compare
 
-This project provides tools to:
-* Identify a high level diff - deletions and overrides between a source and target package.
+A PHP implementation for comparing two or more Site Studio Packages:
+
+* high level diff - deletions and overrides between a source and target package.
 * Output a high level diff to PHP array, JSON or CSV.
 * Compare package JSON fields stored as strings, by wrapping JSONdiff https://github.com/swaggest/json-diff#library-usage
 
@@ -22,21 +23,80 @@ Require the dependency via Composer:
 composer require garrowsmith/site-studio-compare
 ```
 
-## Package Setup
-
-This project relies on real packages and are excluded:
-
-```
-    tests/packages/complex/mds.2.6.0.package.yml
-    tests/packages/complex/brand-1.0.4.yml
-    tests/packages/complex/brand-styles-1.0.7.yml
-```
-
 ## Example Usage
 
-### Example usage: JSON diff
+### Basic usage: CSV report
+
+```
+
+$compare = new ComparePackage($source, $targets);
+
+// ... generate a report
+$compare->diffToCSV('../path/to/report.csv');
+
+// ... or use data to further compare
+$diff = $compare->diffToArray();
+
+```
+
+### Advanced usage: JSON diff
 
 See `./examples/diff.php` folder for a usage example where field value of `json_values` is compared.
+
+```
+<?php
+
+use SiteStudio\Package\ComparePackage;
+use Swaggest\JsonDiff\JsonDiff;
+
+$source = './path/to/source.package.yml'
+$target = './path/to/target.package.yml' 
+$compare = new ComparePackage($source, $target);
+
+// store the source package as index in memory
+$compare->setSource($source);
+
+foreach ($compare->diffToArray() as $package_path => $diff) {
+    // pass the target to compare with
+    $compare->setTarget($package_path);
+
+    // loop through all cases where source is overriden
+    foreach ($diff['overrides'] as $uuid => $item) {
+
+        // get source package JSON field
+        $source_entity = $compare->inspect($uuid, $compare->sourceArray);
+        $source_json = json_decode($source_entity['export']['json_values']);
+
+        // get target package JSON field, custom components or styles
+        $target_entity = $compare->inspect($uuid, $compare->targetArray);
+        $target_json = json_decode($target_entity['export']['json_values']);
+        
+        // See https://github.com/swaggest/json-diff#library-usage
+        $diff = new JsonDiff(
+            $source_json, 
+            $target_json,
+            JsonDiff::TOLERATE_ASSOCIATIVE_ARRAYS
+        );
+        // Output the JSON Patch format, see http://jsonpatch.com/
+        echo json_encode($diff->getPatch(), JSON_PRETTY_PRINT);
+    }
+
+```
+
+### Example usage: single package
+
+```
+<?php
+
+use SiteStudio\Package\ComparePackage;
+
+$source = 'mds.2.6.0.package.yml';
+$target = 'brand.1.0.14.package.yml';
+
+$compare = new ComparePackage($source, $target);
+$compare->diffToCSV('../path/to/report.csv');
+
+```
 
 ### Example usage: multiple packages
 
@@ -56,21 +116,6 @@ $compare->diffToCSV('../path/to/report.csv');
 
 $diff = $compare->diffToArray();
 $json = $compare->diffToJSON();
-
-```
-
-### Example usage: single package
-
-```
-<?php
-
-use SiteStudio\Package\ComparePackage;
-
-$source = 'mds.2.6.0.package.yml';
-$target = 'brand.1.0.14.package.yml';
-
-$compare = new ComparePackage($source, $target);
-$compare->diffToCSV('../path/to/report.csv');
 
 ```
 
@@ -115,6 +160,16 @@ Reference Site Studio Package structure (6.3.x, 6.4.x):
         selectable: true
     ...    
 */
+```
+
+## Package Setup for Test Cases
+
+This project relies on real packages and are excluded:
+
+```
+    tests/packages/complex/mds.2.6.0.package.yml
+    tests/packages/complex/brand-1.0.4.yml
+    tests/packages/complex/brand-styles-1.0.7.yml
 ```
 
 ## PHPUnit Tests
