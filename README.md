@@ -107,6 +107,7 @@ $json = $compare->diffToJSON();
 Reference Site Studio Package structure (6.3.x, 6.4.x):
 
 ```
+...
 -
     type: cohesion_component
     export:
@@ -122,7 +123,8 @@ Reference Site Studio Package structure (6.3.x, 6.4.x):
         modified: true
         selectable: true
     ...    
-*/
+...
+
 ```
 
 ## Package Setup for Test Cases
