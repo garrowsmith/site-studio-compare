@@ -27,6 +27,8 @@ composer require garrowsmith/site-studio-compare
 
 ### Basic usage: CSV report
 
+See [./examples/compare.php](examples/compare.php)
+
 ```
 
 $compare = new ComparePackage($source, $targets);
@@ -39,51 +41,12 @@ $diff = $compare->diffToArray();
 
 ```
 
-### Advanced usage: JSON diff
+### Advanced usage: Compare Package JSON fields via JSONdiff
 
-See `./examples/diff.php` folder for a usage example where field value of `json_values` is compared.
+See [./examples/diff.php](examples/diff.php) or a usage example where field value of `json_values` is compared. The approach uses [swaggest/JSONdiff](https://github.com/swaggest/json-diff#library-usage) and to generate [JSON Patch format](http://jsonpatch.com/)
 
-```
-<?php
 
-use SiteStudio\Package\ComparePackage;
-use Swaggest\JsonDiff\JsonDiff;
-
-$source = './path/to/source.package.yml'
-$target = './path/to/target.package.yml' 
-$compare = new ComparePackage($source, $target);
-
-// store the source package as index in memory
-$compare->setSource($source);
-
-foreach ($compare->diffToArray() as $package_path => $diff) {
-    // pass the target to compare with
-    $compare->setTarget($package_path);
-
-    // loop through all cases where source is overriden
-    foreach ($diff['overrides'] as $uuid => $item) {
-
-        // get source package JSON field
-        $source_entity = $compare->inspect($uuid, $compare->sourceArray);
-        $source_json = json_decode($source_entity['export']['json_values']);
-
-        // get target package JSON field, custom components or styles
-        $target_entity = $compare->inspect($uuid, $compare->targetArray);
-        $target_json = json_decode($target_entity['export']['json_values']);
-        
-        // See https://github.com/swaggest/json-diff#library-usage
-        $diff = new JsonDiff(
-            $source_json, 
-            $target_json,
-            JsonDiff::TOLERATE_ASSOCIATIVE_ARRAYS
-        );
-        // Output the JSON Patch format, see http://jsonpatch.com/
-        echo json_encode($diff->getPatch(), JSON_PRETTY_PRINT);
-    }
-
-```
-
-### Example usage: single package
+### Basic usage: single package generate CSV
 
 ```
 <?php

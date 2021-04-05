@@ -13,15 +13,16 @@ $compare = new ComparePackage($source, $target);
 $compare->setSource($source);
 
 foreach ($compare->diffToArray() as $package_path => $diff) {
-
+    // store the target package in memory
     $compare->setTarget($package_path);
-    
+
+    // loop through all cases where source is overriden
     foreach ($diff['overrides'] as $uuid => $item) {
-        // source package, MDS
+        // get source package JSON field
         $source_entity = $compare->inspect($uuid, $compare->sourceArray);
         $source_json = json_decode($source_entity['export']['json_values']);
 
-        // target package, custom components or styles
+        // get target package JSON field, custom components or styles
         $target_entity = $compare->inspect($uuid, $compare->targetArray);
         $target_json = json_decode($target_entity['export']['json_values']);
         
