@@ -27,23 +27,43 @@ composer require garrowsmith/site-studio-compare
 
 ### Basic usage: CSV report
 
-See [./examples/compare.php](examples/compare.php)
+See [./examples/compare.php](examples/compare.php) for a working example using mock packages.
+
+```
+...
+$compare = new ComparePackage($source, $targets);
+$compare->diffToCSV('../path/to/report.csv');
 
 ```
 
-$compare = new ComparePackage($source, $targets);
+### Structure of the diff Array 
 
-// ... generate a report
-$compare->diffToCSV('../path/to/report.csv');
+Each target indexed by file path, with changes classified as "insertions" (custom items), "deletions" or "overrides". This is a subset of the Package to allow at a comparisons.
 
-// ... or use data to further compare
+```
+... 
 $diff = $compare->diffToArray();
+
+$diff["/path/to/target.package.yml"] => {
+    ["insertions"]=> {...}
+    ["deletions"]=> {...}
+    ["overrides"] => {
+        ["21548607-8efc-490c-aa9b-2d3694399aad] => {
+            ["idx"]=> "overrides"
+            ["type"]=> "cohesion_menu_templates"
+            ["uuid"]=> "21548607-8efc-490c-aa9b-2d3694399aad"
+            ["id"]=> "menu_tpl_main_navigation"
+            ["label"]=> "Burger menu template"
+            ["package"]=> "single-target-styles.yml"
+            ["path"]=> "/some/path/packages/single-target-styles.yml"
+    }
+}
 
 ```
 
 ### Advanced usage: Compare Package JSON fields via JSONdiff
 
-See [./examples/diff.php](examples/diff.php) or a usage example where field value of `json_values` is compared. The approach uses [swaggest/JSONdiff](https://github.com/swaggest/json-diff#library-usage) and to generate [JSON Patch format](http://jsonpatch.com/)
+See [./examples/diff.php](examples/diff.php) or a usage example where field value of `json_values` is compared. The approach uses [swaggest/JSONdiff](https://github.com/swaggest/json-diff#library-usage) and to generate [JSON Patch format](http://jsonpatch.com/).
 
 
 ### Basic usage: single package generate CSV
@@ -79,26 +99,6 @@ $compare->diffToCSV('../path/to/report.csv');
 
 $diff = $compare->diffToArray();
 $json = $compare->diffToJSON();
-
-```
-
-## Structure of the diff Array 
-
-```
-$diff["/path/to/target.package.yml"] => {
-    ["insertions"]=> {...}
-    ["deletions"]=> {...}
-    ["overrides"] => {
-        ["21548607-8efc-490c-aa9b-2d3694399aad] => {
-            ["idx"]=> "overrides"
-            ["type"]=> "cohesion_menu_templates"
-            ["uuid"]=> "21548607-8efc-490c-aa9b-2d3694399aad"
-            ["id"]=> "menu_tpl_main_navigation"
-            ["label"]=> "Burger menu template"
-            ["package"]=> "single-target-styles.yml"
-            ["path"]=> "/some/path/packages/single-target-styles.yml"
-    }
-}
 
 ```
 
