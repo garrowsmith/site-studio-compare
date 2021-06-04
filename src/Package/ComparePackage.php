@@ -1,6 +1,7 @@
 <?php
 
 namespace SiteStudio\Package;
+
 use Symfony\Component\Yaml\Yaml;
 use SiteStudio\Package\ArrayDiff;
 
