@@ -3,6 +3,7 @@
 namespace SiteStudio\Package;
 
 class ArrayDiff {
+
     /**
      * Compare two arrays and return a list of items only in array1 (deletions) and only in array2 (insertions)
      *
